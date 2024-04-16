@@ -3,6 +3,7 @@ import tkinter as tk
 import ttk
 import threading
 import socket
+import time
 
 #Socket Part
 header = 64
@@ -62,6 +63,7 @@ class User:
       while self.session:
 
         if self.requestUpdate == True:
+
           messageText.config(state= "normal")
           messageText.insert(tk.END, self.request + "\n")
           messageText.config(state= "disabled")
@@ -71,6 +73,7 @@ class User:
       sendLength = str(msgLength).encode("utf-8")
       sendLength += b' ' * (header - len(sendLength))"""
       self.sendConsoleMess("close")
+      time.sleep(1)
       self.client.close()
 
 
@@ -80,6 +83,8 @@ class User:
       messageEntry.delete(0, tk.END)
 
     def sendConsoleMess(self, msg):
+      if msg == "/help":
+        messageText.delete("1.0", tk.END)
       message = msg.encode("utf-8")
       msgLength = len(message)
       sendLength = str(msgLength).encode("utf-8")
@@ -118,11 +123,12 @@ messageEntry = tk.Entry(win)
 
 scrollBar = ttk.Scrollbar(win, orient= "vertical", style= "arrowless.Vertical.Scrollbar")
 messageText = tk.Text(win, bg= None, bd= 0, font= "Helvetica 11", yscrollcommand= scrollBar.set)
+messageText.insert("1.0", "Welcome to Peer Messenger!\n_-_-_-_-_-_-_-_-_-_-_-_-_-_\n\nClick the Connect button to join\n_-_-_-_-_-_-_-_-_-_-_-_-_-_\n\nAfter you connect type '/help' to learn more\n\n")
 messageText.config(state= "disabled")
 scrollBar.config(command= messageText.yview)
 connectButton = tk.Button(win, text= "Connect", command= serverConnect)
 
-user = User("Josh", 1)
+user = User("Guest", 1)
 
 
 def close():

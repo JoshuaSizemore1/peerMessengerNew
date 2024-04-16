@@ -11,7 +11,7 @@ clients =[]
 server = None
 clientNum = 0
 nextClient = "client" + str(clientNum + 1)
-commands = ["/join", "/help", "/connect"]
+commands = ["/join", "/help", "/clients"]
 serverRunning = False
 clientNumChange = False
 
@@ -76,17 +76,17 @@ def clientTethering():
     global clientNum
     global nextClient
     global clientNumChange
+
     try:
         while serverRunning:
-            nextClient = "client" + str(clientNum + 1)
+            clientNum = clientNum + 1
+            nextClient = "client" + str(clientNum)
             clientSocket, addr = server.accept()
-            nextClient = "client" + str(clientNum + 1)
 
             clients.append(exec("%s = None" % (nextClient)))
             for i in range(len(clients)):
                 if clients[i] == None:
                     clients[i] = Client("Undef", clientNum, clientSocket, addr,)
-            clientNum = clientNum + 1
             clientNumChange = True
 
 
@@ -132,16 +132,8 @@ class Client():
                 self.request = self.clientSocket.recv(self.requestLength).decode("utf-8")
                 self.requestUpdate = True
         except Exception as e:
-            print(f"Exception{e}")
+            pass
 
-    """
-    CURRENT ISSUE NEEDS FIX ASAP---------
-
-    currently when the client disconnects the handleClient is not closing and is therefor not updating who is connected
-    and causes other problems FIX (current info: the client handle closes when the self.session == False (does not work) and it should become false in multiple different senerios)
-
-
-    """
     
     def handleClient(self):
         global clientNum
@@ -153,6 +145,8 @@ class Client():
         self.requestLength  = self.clientSocket.recv(header).decode("utf-8")
         self.requestLength = int(self.requestLength)
         self.username = self.clientSocket.recv(self.requestLength).decode("utf-8")
+        if self.username == "Guest":
+            self.username = self.username + str(self.id)
         print( self.username + " joined the server.")
 
         requestThread = threading.Thread(target= self.clientRequest)
@@ -161,19 +155,28 @@ class Client():
         while self.session == True:
     
             if self.requestUpdate == True:
-                
+
                 if(self.request[0:1] == "/"):
                     if(self.request[1:] == commands[0]):
-                        
+                        if len(clients) > 1:
+                            for i in range(len(clients)):
+                                if self.request[6: ] == clients[i].username:
+                                    sendConsoleMess(self.clientSocket, "Connecting ...")
+                                    
+                    if(self.request[1:] == commands[1]):
                         pass
-                elif self.request == "close":
-                    print("im in")
+                    if(self.request[1:] == "clients"):
+                        if len(clients) > 1:
+                            sendConsoleMess(self.clientSocket, " ".join(clients.username))
+                        else:
+                            sendConsoleMess(self.clientSocket, "You're all Alone :(")
+
+                elif(self.request == "close"):
                     self.session = False
                 else:
                     print(self.username + ": " + self.request)
                 self.requestUpdate = False
 
-        print(self.request)
 
         print(self.username + " left the server.")
         self.clientSocket.close()
