@@ -11,10 +11,10 @@ clients =[]
 server = None
 clientNum = 0
 nextClient = "client" + str(clientNum + 1)
-commands = ["/join", "/help", "/clients"]
+commands = ["/join", "/help", "/clients", "/create"]
 serverRunning = False
 clientNumChange = False
-
+rooms = []
 
 #Server global methods
 def stopServer():
@@ -24,7 +24,6 @@ def stopServer():
     clients.clear()
     clientNum = 0
     serverRunning = False
-
 
 
 def startServerThread():
@@ -70,6 +69,8 @@ def startServer():
 
     print("Killed")
     server.close()
+
+
 
 def clientTethering():
     global server
@@ -123,6 +124,7 @@ class Client():
         self.requestUpdate = False
         self.requestLength = 0
         self.session = True
+        self.currentRoom = 0
 
     def clientRequest(self):
         try:
@@ -132,7 +134,9 @@ class Client():
                 self.request = self.clientSocket.recv(self.requestLength).decode("utf-8")
                 self.requestUpdate = True
         except Exception as e:
-            pass
+            for i in range(len(clients)):
+                if clients[i].id == self.id:
+                    del clients[i]
 
     
     def handleClient(self):
@@ -158,13 +162,13 @@ class Client():
 
                 if(self.request[0:1] == "/"):
                     if(self.request[1:] == commands[0]):
-                        if len(clients) > 1:
-                            for i in range(len(clients)):
-                                if self.request[6: ] == clients[i].username:
+                        if len(rooms) > 1:
+                            for i in range(len(rooms)):
+                                if self.request[6: ] == clients[i]:
                                     sendConsoleMess(self.clientSocket, "Connecting ...")
                                     
-                    if(self.request[1:] == commands[1]):
-                        pass
+                    if(self.request[1:] == "help"):
+                        sendConsoleMess(self.clientSocket, "")
                     if(self.request[1:] == "clients"):
                         if len(clients) > 1:
                             sendConsoleMess(self.clientSocket, " ".join(clients.username))
@@ -185,6 +189,7 @@ class Client():
                 del clients[i]
         clientNum = clientNum - 1
         clientNumChange = True
+
 
 
 """

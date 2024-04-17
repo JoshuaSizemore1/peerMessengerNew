@@ -25,7 +25,7 @@ class User:
         self.requestUpdate = False
         self.requestLength = 0
         self.isConnected = False
-        self.userConnectedTo = ""
+        self.roomConnectedTo = 0
         self.session = True
 
     def showMess(self, event):
@@ -69,9 +69,6 @@ class User:
           messageText.config(state= "disabled")
           self.requestUpdate = False
         
-      """msgLength = len("close")
-      sendLength = str(msgLength).encode("utf-8")
-      sendLength += b' ' * (header - len(sendLength))"""
       self.sendConsoleMess("close")
       time.sleep(1)
       self.client.close()
@@ -79,7 +76,8 @@ class User:
 
     def sendMess(self, event):
       message = messageEntry.get()
-      self.sendConsoleMess(message)
+      if len(message) > 0 and message != " ":
+        self.sendConsoleMess(message)
       messageEntry.delete(0, tk.END)
 
     def sendConsoleMess(self, msg):
