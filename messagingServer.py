@@ -54,9 +54,6 @@ def startServer():
 
     while serverRunning:
 
-        #print(clientNum)
-        #print(clients)
-
         if clientNumChange == True:
             currentUserText.config(state= "normal")
             currentUserText.delete("1.0", tk.END)
@@ -161,19 +158,43 @@ class Client():
             if self.requestUpdate == True:
 
                 if(self.request[0:1] == "/"):
-                    if(self.request[1:] == commands[0]):
+                    if(self.request[1:] == "join"):
                         if len(rooms) > 1:
                             for i in range(len(rooms)):
                                 if self.request[6: ] == clients[i]:
                                     sendConsoleMess(self.clientSocket, "Connecting ...")
                                     
-                    if(self.request[1:] == "help"):
-                        sendConsoleMess(self.clientSocket, "")
-                    if(self.request[1:] == "clients"):
+                    elif(self.request[1:] == "help"):
+                        sendConsoleMess(self.clientSocket, "Here is a list of the commands and what they Do:\n\n'/clients' : shows all the current clients connected to the server\n\n'/join (room name)'  : Allows you to join an open room")
+                    
+                    elif(self.request[1:] == "clients"):
                         if len(clients) > 1:
-                            sendConsoleMess(self.clientSocket, " ".join(clients.username))
+                            mes = ""
+                            for i in range(len(clients)):
+                                mes = mes + "\n" + clients[i].username
+                            sendConsoleMess(self.clientSocket, mes)
                         else:
                             sendConsoleMess(self.clientSocket, "You're all Alone :(")
+                    
+                    elif(self.request[1:] == "c"):
+                        created = False
+                        for i in range(len(rooms)):
+                            if rooms[i][0] == self.username + "'s + room":
+                                created = True
+                        if created == False:
+                            newRoom = [self.username + "'s room", self.username]
+                            rooms.append(newRoom)
+                        else: 
+                            sendConsoleMess(self.clientSocket, "You already have a room")
+                        
+                    elif(self.request[1:] == "rooms"):
+                        if len(rooms) > 1:
+                            mes = ""
+                            for i in range(len(rooms)):
+                                mes = mes +  "\n" + rooms[i][0]
+                            sendConsoleMess(self.clientSocket, mes)
+                        else:
+                            sendConsoleMess(self.clientSocket, "There are no rooms open")
 
                 elif(self.request == "close"):
                     self.session = False
