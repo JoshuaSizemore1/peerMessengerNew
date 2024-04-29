@@ -67,6 +67,7 @@ class User:
           messageText.config(state= "normal")
           messageText.insert(tk.END, self.request + "\n")
           messageText.config(state= "disabled")
+          messageText.see("end")
           self.requestUpdate = False
         
       self.sendConsoleMess("close")
@@ -81,8 +82,6 @@ class User:
       messageEntry.delete(0, tk.END)
 
     def sendConsoleMess(self, msg):
-      if msg == "/help":
-        messageText.delete("1.0", tk.END)
       message = msg.encode("utf-8")
       msgLength = len(message)
       sendLength = str(msgLength).encode("utf-8")
