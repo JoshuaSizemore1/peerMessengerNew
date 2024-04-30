@@ -7,11 +7,14 @@ import time
 
 #Socket Part
 header = 64
-
+connected = False
 
 def serverConnect():
-  clientThread = threading.Thread(target= user.run_client)
-  clientThread.start()
+  global connected
+  if connected == False:
+    clientThread = threading.Thread(target= user.run_client)
+    clientThread.start()
+    connected = True
 
 rooms = []
 
