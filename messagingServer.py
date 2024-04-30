@@ -64,8 +64,6 @@ def startServer():
             currentUserText.config(state= "disabled")
             clientNumChange = False
 
-
-
     print("Killed")
     server.close()
 
@@ -127,6 +125,7 @@ class Client():
         self.created = False
         self.userType = "user"
         self.roomConnectingStatus = "not"
+        self.coolDown = 7000000
         
 
     def clientRequest(self):
@@ -155,12 +154,22 @@ class Client():
         if self.username == "Guest":
             self.username = self.username + str(self.id)
         print( self.username + " joined the server.")
+        
 
         requestThread = threading.Thread(target= self.clientRequest)
         requestThread.start()
 
         while self.session == True:
-    
+            if self.coolDown == 0:
+                allRooms = ""
+                if len(rooms) > 0:
+                    for room in rooms:
+                        allRooms = allRooms + room[0] + "."
+                    sendConsoleMess(self.clientSocket, "/rooms " + allRooms)
+                self.coolDown = 7000000
+            self.coolDown = self.coolDown - 1
+
+
             if self.requestUpdate == True:
 
                 if(self.request[0:1] == "/"):
@@ -175,7 +184,7 @@ class Client():
                                         for client in clients:
                                             if rooms[i][j] == client.username:
                                                 if client.userType == "owner":
-                                                    sendConsoleMess(client.clientSocket, self.username + " is wanting to connect. Do you want them to join (/y or /n) ")
+                                                    sendConsoleMess(client.clientSocket, self.username + " is wanting to connect. Do you want them to join (/y or /n) \n")
                         else:
                             sendConsoleMess(self.clientSocket, "There are no rooms (or you are already in a room so type /leave)")
                         

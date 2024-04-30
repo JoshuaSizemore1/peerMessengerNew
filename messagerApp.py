@@ -13,7 +13,7 @@ def serverConnect():
   clientThread = threading.Thread(target= user.run_client)
   clientThread.start()
 
-
+rooms = []
 
 
 class User:
@@ -27,6 +27,7 @@ class User:
         self.isConnected = False
         self.roomConnectedTo = 0
         self.session = True
+        self.roomUpdate = False
 
     def showMess(self, event):
       message = self.username + ": " + messageEntry.get()
@@ -42,7 +43,18 @@ class User:
           requestLength  = self.client.recv(header).decode("utf-8")
           requestLength = int(requestLength)
           self.request = self.client.recv(requestLength).decode("utf-8")
-          self.requestUpdate = True
+          if self.request[:1] == "/":
+            if self.request[1:6] == "rooms":
+              self.request = self.request[6:]
+              while self.request != "":
+                if self.request[:self.request.index(".")] in rooms:
+                  pass
+                else:
+                  rooms.append(self.request[:self.request.index(".")])
+                  self.roomUpdate = True
+                self.request = self.request[self.request.index(".") + 1:]
+          else:
+            self.requestUpdate = True
       except Exception as e:
         pass
 
@@ -61,7 +73,6 @@ class User:
 
 
       while self.session:
-
         if self.requestUpdate == True:
 
           messageText.config(state= "normal")
@@ -69,7 +80,17 @@ class User:
           messageText.config(state= "disabled")
           messageText.see("end")
           self.requestUpdate = False
-        
+
+
+        if self.roomUpdate == True:
+          roomText.config(state= "normal")
+          roomText.delete("1.0", tk.END)
+          roomText.insert("1.0", "Open Rooms: \n\n")
+          roomText.insert(tk.END, "\n ".join(rooms))
+          roomText.config(state= "disabled")
+          self.roomUpdate = False
+
+
       self.sendConsoleMess("close")
       time.sleep(1)
       self.client.close()
@@ -107,15 +128,14 @@ style.layout("arrowless.Vertical.Scrollbar",
             "sticky": "ns"})])
 
 
-win.columnconfigure(0, weight= 3, uniform= "a")
-win.columnconfigure(1, weight= 24, uniform= "a")
+win.columnconfigure(0, weight= 4, uniform= "a")
+win.columnconfigure(1, weight= 26, uniform= "a")
 win.columnconfigure(2, weight= 1, uniform= "a")
-win.rowconfigure(0, weight= 20, uniform= "a")
-win.rowconfigure(1, weight= 1, uniform= "a")
+win.rowconfigure(0, weight= 23, uniform= "a")
+win.rowconfigure(1, weight= 2, uniform= "a")
 
 
 textFrame = tk.Frame(win, bg= None, bd= None)
-greybackGround = tk.Label(win, background= "light grey")
 messageEntry = tk.Entry(win)
 
 scrollBar = ttk.Scrollbar(win, orient= "vertical", style= "arrowless.Vertical.Scrollbar")
@@ -124,6 +144,13 @@ messageText.insert("1.0", "Welcome to Peer Messenger!\n_-_-_-_-_-_-_-_-_-_-_-_-_
 messageText.config(state= "disabled")
 scrollBar.config(command= messageText.yview)
 connectButton = tk.Button(win, text= "Connect", command= serverConnect)
+
+roomText = tk.Text(win, bg= "light grey", bd= 0, font= "Helvetica 10", yscrollcommand= scrollBar.set)
+roomText.insert("1.0", "Open Rooms: \n\n")
+roomText.config(state= "disabled")
+
+messageText.insert("1.0", "Welcome to Peer Messenger!\n_-_-_-_-_-_-_-_-_-_-_-_-_-_\n\nClick the Connect button to join\n_-_-_-_-_-_-_-_-_-_-_-_-_-_\n\nAfter you connect type '/help' to learn more\n\n")
+messageText.config(state= "disabled")
 
 user = User("Guest", 1)
 
@@ -134,11 +161,11 @@ def close():
 
 win.protocol("WM_DELETE_WINDOW", close)
 win.bind('<Return>', user.sendMess)
+roomText.grid(row= 0, column= 0, sticky= "nsew")
 messageText.grid(row= 0, column= 1, sticky= "nsew")
 connectButton.grid(row= 1, column= 0, sticky= "nsew")
 scrollBar.grid(row= 0, column= 2, sticky= "nsew")
 textFrame.grid(row= 0, column= 1, sticky= "nsew")
-greybackGround.grid(row= 0, column= 0, rowspan= 2, sticky= "nsew")
 messageEntry.grid(row= 1, column= 1, sticky= "nsew")
 
 
