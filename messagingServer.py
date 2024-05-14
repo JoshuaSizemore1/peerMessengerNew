@@ -41,7 +41,7 @@ def startServer():
     global clientNumChange
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverIp ="127.0.0.1"
+    serverIp ="192.168.254.26"
     port = 8000
     server.bind((serverIp, port))
     server.listen(1)

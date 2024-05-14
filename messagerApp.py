@@ -64,7 +64,7 @@ class User:
 
     def run_client(self):
       self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      server_ip = "127.0.0.1" 
+      server_ip = "192.168.254.26" 
       server_port = 8000 
       self.client.connect((server_ip, server_port))
 
