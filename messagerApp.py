@@ -41,13 +41,14 @@ class User:
           messageEntry.delete(0, tk.END)
     
     def serverRequest(self):
+      global connected
       try:
         while True:
           requestLength  = self.client.recv(header).decode("utf-8")
           requestLength = int(requestLength)
           self.request = self.client.recv(requestLength).decode("utf-8")
           if self.request[:1] == "/":
-            if self.request[1:6] == "rooms":
+            if self.request[1:] == "rooms":
               self.request = self.request[6:]
               while self.request != "":
                 if self.request[:self.request.index(".")] in rooms:
@@ -56,6 +57,9 @@ class User:
                   rooms.append(self.request[:self.request.index(".")])
                   self.roomUpdate = True
                 self.request = self.request[self.request.index(".") + 1:]
+            elif self.request[1:] == "disconect":
+              connected = False
+              self.session = False
           else:
             self.requestUpdate = True
       except Exception as e:
@@ -63,9 +67,10 @@ class User:
 
 
     def run_client(self):
+      self.session = True
       self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      server_ip = "192.168.254.26" 
-      server_port = 8000 
+      server_ip = "10.17.121.0" 
+      server_port = 443 
       self.client.connect((server_ip, server_port))
 
       intializing = user.username
@@ -76,7 +81,7 @@ class User:
 
 
       while self.session:
-        if self.requestUpdate == True:
+        if self.requestUpdate:
 
           messageText.config(state= "normal")
           messageText.insert(tk.END, self.request + "\n")
@@ -85,7 +90,7 @@ class User:
           self.requestUpdate = False
 
 
-        if self.roomUpdate == True:
+        if self.roomUpdate:
           roomText.config(state= "normal")
           roomText.delete("1.0", tk.END)
           roomText.insert("1.0", "Open Rooms: \n\n")

@@ -41,8 +41,8 @@ def startServer():
     global clientNumChange
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverIp ="192.168.254.26"
-    port = 8000
+    serverIp ="10.17.121.0"
+    port = 443
     server.bind((serverIp, port))
     server.listen(1)
 
@@ -77,8 +77,9 @@ def clientTethering():
 
     try:
         while serverRunning:
+            print(clientNum)
             clientNum = clientNum + 1
-            nextClient = "client" + str(clientNum)
+            nextClient = "client" + str(clientNum + 1)
             clientSocket, addr = server.accept()
 
             clients.append(exec("%s = None" % (nextClient)))
@@ -136,13 +137,10 @@ class Client():
                 self.request = self.clientSocket.recv(self.requestLength).decode("utf-8")
                 self.requestUpdate = True
         except Exception as e:
-            for i in range(len(clients)):
-                if clients[i].id == self.id:
-                    del clients[i]
+            pass
 
     
     def handleClient(self):
-        global clientNum
         global clientNumChange
 
         response = "Connected"
@@ -241,8 +239,9 @@ class Client():
                             self.currentRoom = "not"
                             self.roomConnectingStatus = "not"
 
-                elif(self.request == "close"):
-                    self.session = False
+                    elif(self.request[1:] == "disconect"):
+                        sendConsoleMess(self.clientSocket, "/disconect")
+                        self.session = False
                 else:
                     if self.currentRoom != "not":
                         for client in clients:
@@ -259,8 +258,7 @@ class Client():
         for i in range(len(clients)):
             if clients[i].id == self.id:
                 del clients[i]
-        clientNum = clientNum - 1
-        clientNumChange = True
+                break
 
 
 
