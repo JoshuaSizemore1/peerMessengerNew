@@ -1,6 +1,7 @@
 import socket
 import threading
 import tkinter as tk
+import os
 
 header = 64
 stopServer = False
@@ -248,17 +249,17 @@ class Client():
                                         #remove user from room
                                         pass
 
-                    elif(self.request == "close"):
+                    elif(self.request[1:] == "close"):
                         self.session = False
+                else:
+                    if self.currentRoom != "not":
+                        for client in clients:
+                            if client.currentRoom == self.currentRoom:
+                                sendConsoleMess(client.clientSocket, self.username + ": " + self.request + "\n")                            
+                                print(self.currentRoom + "- " + self.username + ": " + self.request)
                     else:
-                        if self.currentRoom != "not":
-                            for client in clients:
-                                if client.currentRoom == self.currentRoom:
-                                    sendConsoleMess(client.clientSocket, self.username + ": " + self.request + "\n")
-                            print(self.currentRoom + "- " + self.username + ": " + self.request)
-                        else:
-                            print(self.username + ": " + self.request)
-                    self.requestUpdate = False
+                        print(self.username + ": " + self.request)
+                        self.requestUpdate = False
 
 
         print(self.username + " left the server.")

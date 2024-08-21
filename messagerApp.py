@@ -164,7 +164,8 @@ def close():
   win.destroy()
 
 win.protocol("WM_DELETE_WINDOW", close)
-win.bind('<Return>', user.sendMess)
+if user.session == True:
+  win.bind('<Return>', user.sendMess)
 roomText.grid(row= 0, column= 0, sticky= "nsew")
 messageText.grid(row= 0, column= 1, sticky= "nsew")
 connectButton.grid(row= 1, column= 0, sticky= "nsew")
