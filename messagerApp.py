@@ -95,7 +95,7 @@ class User:
           self.roomUpdate = False
 
 
-      self.sendConsoleMess("close")
+      self.sendConsoleMess("/close")
       time.sleep(1)
       self.client.close()
 
