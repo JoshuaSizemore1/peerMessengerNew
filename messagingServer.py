@@ -1,3 +1,7 @@
+"""
+Created by: Joshua Sizemore
+Version 0.1.1
+"""
 import socket
 import threading
 import tkinter as tk

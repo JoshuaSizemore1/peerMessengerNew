@@ -1,3 +1,8 @@
+"""
+Created by: Joshua Sizemore
+Version 0.1.1
+"""
+
 #Import the required libraries
 import tkinter as tk
 import ttk
