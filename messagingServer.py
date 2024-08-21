@@ -41,8 +41,11 @@ def startServer():
     global clientNumChange
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverIp ="127.0.0.1"
-    port = 8000
+    hostname = socket.gethostname()
+    #serverIp = socket.gethostbyname(hostname)
+    serverIp = "10.17.0.126"
+    print(serverIp)
+    port = 443
     server.bind((serverIp, port))
     server.listen(1)
 
@@ -63,6 +66,7 @@ def startServer():
                 currentUserText.insert(tk.END, "\n" + str(rooms[j][0]))
             currentUserText.config(state= "disabled")
             clientNumChange = False
+
 
     print("Killed")
     server.close()
@@ -125,7 +129,7 @@ class Client():
         self.created = False
         self.userType = "user"
         self.roomConnectingStatus = "not"
-        self.coolDown = 7000000
+        self.numRooms = len(rooms)
         
 
     def clientRequest(self):
@@ -136,9 +140,7 @@ class Client():
                 self.request = self.clientSocket.recv(self.requestLength).decode("utf-8")
                 self.requestUpdate = True
         except Exception as e:
-            for i in range(len(clients)):
-                if clients[i].id == self.id:
-                    del clients[i]
+            pass
 
     
     def handleClient(self):
@@ -146,6 +148,7 @@ class Client():
         global clientNumChange
 
         response = "Connected"
+        print(self.addr)
         sendConsoleMess(self.clientSocket, response)
 
         self.requestLength  = self.clientSocket.recv(header).decode("utf-8")
@@ -160,14 +163,13 @@ class Client():
         requestThread.start()
 
         while self.session == True:
-            if self.coolDown == 0:
+            if len(rooms) > self.numRooms:
                 allRooms = ""
                 if len(rooms) > 0:
                     for room in rooms:
                         allRooms = allRooms + room[0] + "."
                     sendConsoleMess(self.clientSocket, "/rooms " + allRooms)
-                self.coolDown = 7000000
-            self.coolDown = self.coolDown - 1
+                self.numRooms = len(rooms)
 
 
             if self.requestUpdate == True:
@@ -240,18 +242,23 @@ class Client():
                         if self.currentRoom != "not":
                             self.currentRoom = "not"
                             self.roomConnectingStatus = "not"
+                            for room in rooms:
+                                for i in range(len(room)):
+                                    if room[i] == self.username:
+                                        #remove user from room
+                                        pass
 
-                elif(self.request == "close"):
-                    self.session = False
-                else:
-                    if self.currentRoom != "not":
-                        for client in clients:
-                            if client.currentRoom == self.currentRoom:
-                                sendConsoleMess(client.clientSocket, self.username + ": " + self.request + "\n")
-                        print(self.currentRoom + "- " + self.username + ": " + self.request)
+                    elif(self.request == "close"):
+                        self.session = False
                     else:
-                        print(self.username + ": " + self.request)
-                self.requestUpdate = False
+                        if self.currentRoom != "not":
+                            for client in clients:
+                                if client.currentRoom == self.currentRoom:
+                                    sendConsoleMess(client.clientSocket, self.username + ": " + self.request + "\n")
+                            print(self.currentRoom + "- " + self.username + ": " + self.request)
+                        else:
+                            print(self.username + ": " + self.request)
+                    self.requestUpdate = False
 
 
         print(self.username + " left the server.")
@@ -259,15 +266,9 @@ class Client():
         for i in range(len(clients)):
             if clients[i].id == self.id:
                 del clients[i]
+            break
         clientNum = clientNum - 1
         clientNumChange = True
-
-
-
-"""
-NEXT THING TO DO: 
-finish server messaging
-"""
 
 
 #Tkinter part of code

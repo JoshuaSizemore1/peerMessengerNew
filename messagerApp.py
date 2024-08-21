@@ -64,8 +64,9 @@ class User:
 
     def run_client(self):
       self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      server_ip = "127.0.0.1" 
-      server_port = 8000 
+      #server_ip = "192.168.206.1"
+      server_ip = "10.17.0.126"
+      server_port = 443 
       self.client.connect((server_ip, server_port))
 
       intializing = user.username
