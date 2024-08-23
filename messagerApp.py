@@ -101,7 +101,7 @@ class User:
 
 
       self.sendConsoleMess("/close")
-      time.sleep(1)
+      time.sleep(0.1)
       self.client.close()
 
 
@@ -166,6 +166,7 @@ user = User("Guest", 1)
 
 def close():
   user.session = False
+  time.sleep(0.1)
   win.destroy()
 
 win.protocol("WM_DELETE_WINDOW", close)

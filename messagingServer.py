@@ -295,10 +295,15 @@ def close():
     for i in range(len(clients)):
         clients[i].session = False
     serverRunning = False
+    
     win.destroy()
 
 win.protocol("WM_DELETE_WINDOW", close)
-win.bind('<Return>', consoleMess)
+
+print(len(clients))
+if len(clients) > 0:
+    print("here")
+    win.bind('<Return>', consoleMess)
 
 
 messageEntry.pack(anchor= "s")
