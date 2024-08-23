@@ -1,6 +1,11 @@
+"""
+Created by: Joshua Sizemore
+Version 0.1.1
+"""
 import socket
 import threading
 import tkinter as tk
+import os
 
 header = 64
 stopServer = False
@@ -41,7 +46,10 @@ def startServer():
     global clientNumChange
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverIp ="10.17.121.0"
+    hostname = socket.gethostname()
+    #serverIp = socket.gethostbyname(hostname)
+    serverIp = "10.17.0.126"
+    print(serverIp)
     port = 443
     server.bind((serverIp, port))
     server.listen(1)
@@ -63,6 +71,7 @@ def startServer():
                 currentUserText.insert(tk.END, "\n" + str(rooms[j][0]))
             currentUserText.config(state= "disabled")
             clientNumChange = False
+
 
     print("Killed")
     server.close()
@@ -126,7 +135,7 @@ class Client():
         self.created = False
         self.userType = "user"
         self.roomConnectingStatus = "not"
-        self.coolDown = 7000000
+        self.numRooms = len(rooms)
         
 
     def clientRequest(self):
@@ -144,6 +153,7 @@ class Client():
         global clientNumChange
 
         response = "Connected"
+        print(self.addr)
         sendConsoleMess(self.clientSocket, response)
 
         self.requestLength  = self.clientSocket.recv(header).decode("utf-8")
@@ -158,14 +168,13 @@ class Client():
         requestThread.start()
 
         while self.session == True:
-            if self.coolDown == 0:
+            if len(rooms) > self.numRooms:
                 allRooms = ""
                 if len(rooms) > 0:
                     for room in rooms:
                         allRooms = allRooms + room[0] + "."
                     sendConsoleMess(self.clientSocket, "/rooms " + allRooms)
-                self.coolDown = 7000000
-            self.coolDown = self.coolDown - 1
+                self.numRooms = len(rooms)
 
 
             if self.requestUpdate == True:
@@ -238,19 +247,23 @@ class Client():
                         if self.currentRoom != "not":
                             self.currentRoom = "not"
                             self.roomConnectingStatus = "not"
+                            for room in rooms:
+                                for i in range(len(room)):
+                                    if room[i] == self.username:
+                                        #remove user from room
+                                        pass
 
-                    elif(self.request[1:] == "disconect"):
-                        sendConsoleMess(self.clientSocket, "/disconect")
+                    elif(self.request[1:] == "close"):
                         self.session = False
                 else:
                     if self.currentRoom != "not":
                         for client in clients:
                             if client.currentRoom == self.currentRoom:
-                                sendConsoleMess(client.clientSocket, self.username + ": " + self.request + "\n")
-                        print(self.currentRoom + "- " + self.username + ": " + self.request)
+                                sendConsoleMess(client.clientSocket, self.username + ": " + self.request + "\n")                            
+                                print(self.currentRoom + "- " + self.username + ": " + self.request)
                     else:
                         print(self.username + ": " + self.request)
-                self.requestUpdate = False
+                        self.requestUpdate = False
 
 
         print(self.username + " left the server.")
@@ -258,14 +271,9 @@ class Client():
         for i in range(len(clients)):
             if clients[i].id == self.id:
                 del clients[i]
-                break
-
-
-
-"""
-NEXT THING TO DO: 
-finish server messaging
-"""
+            break
+        clientNum = clientNum - 1
+        clientNumChange = True
 
 
 #Tkinter part of code
@@ -287,10 +295,15 @@ def close():
     for i in range(len(clients)):
         clients[i].session = False
     serverRunning = False
+    
     win.destroy()
 
 win.protocol("WM_DELETE_WINDOW", close)
-win.bind('<Return>', consoleMess)
+
+print(len(clients))
+if len(clients) > 0:
+    print("here")
+    win.bind('<Return>', consoleMess)
 
 
 messageEntry.pack(anchor= "s")

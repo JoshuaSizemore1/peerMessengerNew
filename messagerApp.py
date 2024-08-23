@@ -1,3 +1,8 @@
+"""
+Created by: Joshua Sizemore
+Version 0.1.1
+"""
+
 #Import the required libraries
 import tkinter as tk
 import ttk
@@ -69,7 +74,8 @@ class User:
     def run_client(self):
       self.session = True
       self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      server_ip = "10.17.121.0" 
+      #server_ip = "192.168.206.1"
+      server_ip = "10.17.0.126"
       server_port = 443 
       self.client.connect((server_ip, server_port))
 
@@ -99,8 +105,8 @@ class User:
           self.roomUpdate = False
 
 
-      self.sendConsoleMess("close")
-      time.sleep(1)
+      self.sendConsoleMess("/close")
+      time.sleep(0.1)
       self.client.close()
 
 
@@ -165,10 +171,12 @@ user = User("Guest", 1)
 
 def close():
   user.session = False
+  time.sleep(0.1)
   win.destroy()
 
 win.protocol("WM_DELETE_WINDOW", close)
-win.bind('<Return>', user.sendMess)
+if user.session == True:
+  win.bind('<Return>', user.sendMess)
 roomText.grid(row= 0, column= 0, sticky= "nsew")
 messageText.grid(row= 0, column= 1, sticky= "nsew")
 connectButton.grid(row= 1, column= 0, sticky= "nsew")
