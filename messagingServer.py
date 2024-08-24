@@ -1,11 +1,12 @@
 """
 Created by: Joshua Sizemore
-Version 0.1.1
+Version 0.2.1
 """
 import socket
 import threading
 import tkinter as tk
-import os
+import customtkinter
+
 
 header = 64
 stopServer = False
@@ -63,13 +64,13 @@ def startServer():
     while serverRunning:
 
         if clientNumChange == True:
-            currentUserText.config(state= "normal")
+            currentUserText.configure(state= "normal")
             currentUserText.delete("1.0", tk.END)
             for i in range(len(clients)):
                 currentUserText.insert(tk.END, "\n" + str(clients[i].id))
             for j in range(len(rooms)):
                 currentUserText.insert(tk.END, "\n" + str(rooms[j][0]))
-            currentUserText.config(state= "disabled")
+            currentUserText.configure(state= "disabled")
             clientNumChange = False
 
 
@@ -277,17 +278,18 @@ class Client():
 
 
 #Tkinter part of code
-win = tk.Tk()
+
+win = customtkinter.CTk()
 win.geometry("700x350")
 win.title("Message Server")
 
-messageEntry = tk.Entry(win)
-startButton = tk.Button(win, text= "Start Server", command= startServerThread)
-endButton = tk.Button(win, text= "Shut Off Server", command= stopServer)
+messageEntry = customtkinter.CTkEntry(win)
+startButton = customtkinter.CTkButton(win, text= "Start Server", command= startServerThread)
+endButton = customtkinter.CTkButton(win, text= "Shut Off Server", command= stopServer)
 
 
-currentUserText = tk.Text(win, bg= None, bd= 0, font= "Helvetica 11")
-
+currentUserText = customtkinter.CTkTextbox(win,bg_color= "transparent", border_width= 0, font= ("Helvetica", 11))
+currentUserText.configure(state= "disabled")
 
 
 def close():
@@ -306,8 +308,8 @@ if len(clients) > 0:
     win.bind('<Return>', consoleMess)
 
 
-messageEntry.pack(anchor= "s")
-endButton.pack(anchor= "center")
-startButton.pack(anchor= "center")
-currentUserText.pack(anchor= "center")
+messageEntry.pack(padx = 5, pady= 5, anchor= "s")
+endButton.pack(padx = 5, pady= 5,anchor= "center")
+startButton.pack(padx = 5, pady= 5,anchor= "center")
+currentUserText.pack(padx = 5, pady= 5,anchor= "center")
 win.mainloop()
