@@ -4,7 +4,6 @@ Version 0.2.1
 """
 import socket
 import threading
-import tkinter as tk
 import customtkinter
 
 
@@ -47,9 +46,7 @@ def startServer():
     global clientNumChange
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    hostname = socket.gethostname()
-    #serverIp = socket.gethostbyname(hostname)
-    serverIp = "10.17.0.126"
+    serverIp = "10.96.77.187"
     print(serverIp)
     port = 443
     server.bind((serverIp, port))
@@ -65,11 +62,11 @@ def startServer():
 
         if clientNumChange == True:
             currentUserText.configure(state= "normal")
-            currentUserText.delete("1.0", tk.END)
+            currentUserText.delete("1.0",customtkinter.END)
             for i in range(len(clients)):
-                currentUserText.insert(tk.END, "\n" + str(clients[i].id))
+                currentUserText.insert(customtkinter.END, "\n" + str(clients[i].id))
             for j in range(len(rooms)):
-                currentUserText.insert(tk.END, "\n" + str(rooms[j][0]))
+                currentUserText.insert(customtkinter.END, "\n" + str(rooms[j][0]))
             currentUserText.configure(state= "disabled")
             clientNumChange = False
 
@@ -119,7 +116,7 @@ def sendConsoleMess(client, msg):
 def consoleMess(event):
     for i in range(len(clients)):
         sendConsoleMess(clients[i].clientSocket, ("Console: "+ messageEntry.get()))
-    messageEntry.delete(0, tk.END)
+    messageEntry.delete(0, customtkinter.END)
 
 
 class Client():

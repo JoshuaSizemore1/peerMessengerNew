@@ -4,8 +4,6 @@ Version 0.2.1
 """
 
 #Import the required libraries
-import tkinter as tk
-import ttk
 import threading
 import socket
 import time
@@ -45,9 +43,9 @@ class User:
       message = self.username + ": " + messageEntry.get()
       if (message != "" or message != " "):
           messageText.configure(state= "normal")
-          messageText.insert(tk.END, "\n" + message)
+          messageText.insert(customtkinter.END, "\n" + message)
           messageText.configure(state= "disabled")
-          messageEntry.delete(0, tk.END)
+          messageEntry.delete(0, customtkinter.END)
     
     def serverRequest(self):
       global connected
@@ -78,7 +76,7 @@ class User:
     def run_client(self):
       self.session = True
       self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      server_ip = "10.17.0.126"
+      server_ip = "10.96.77.187"
       server_port = 443 
       self.client.connect((server_ip, server_port))
 
@@ -93,7 +91,7 @@ class User:
         if self.requestUpdate:
 
           messageText.configure(state= "normal")
-          messageText.insert(tk.END, self.request + "\n")
+          messageText.insert(customtkinter.END, self.request + "\n")
           messageText.configure(state= "disabled")
           messageText.see("end")
           self.requestUpdate = False
@@ -101,9 +99,9 @@ class User:
 
         if self.roomUpdate:
           roomText.configure(state= "normal")
-          roomText.delete("1.0", tk.END)
+          roomText.delete("1.0", customtkinter.END)
           roomText.insert("1.0", "Open Rooms: \n\n")
-          roomText.insert(tk.END, "\n ".join(rooms))
+          roomText.insert(customtkinter.END, "\n ".join(rooms))
           roomText.configure(state= "disabled")
           self.roomUpdate = False
 
@@ -117,7 +115,7 @@ class User:
       message = messageEntry.get()
       if len(message) > 0 and message != " ":
         self.sendConsoleMess(message)
-      messageEntry.delete(0, tk.END)
+      messageEntry.delete(0, customtkinter.END)
 
     def sendConsoleMess(self, msg):
       message = msg.encode("utf-8")
