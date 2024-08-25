@@ -47,8 +47,6 @@ def startServer():
     global clientNumChange
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    hostname = socket.gethostname()
-    #serverIp = socket.gethostbyname(hostname)
     serverIp = "10.17.0.126"
     print(serverIp)
     port = 443
