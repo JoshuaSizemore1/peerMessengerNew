@@ -1,10 +1,9 @@
 """
 Created by: Joshua Sizemore
-Version 0.2.1
+Version 0.2.2
 """
 import socket
 import threading
-import tkinter as tk
 import customtkinter
 
 
@@ -16,6 +15,7 @@ stopServer = False
 clients =[]
 server = None
 clientNum = 0
+totalClientsConnected = 0
 nextClient = "client" + str(clientNum + 1)
 commands = ["/join", "/help", "/clients", "/create"]
 serverRunning = False
@@ -26,9 +26,11 @@ rooms = []
 def stopServer():
     global serverRunning
     global clientNum
+    global totalClientsConnected
 
     clients.clear()
     clientNum = 0
+    totalClientsConnected = 0
     serverRunning = False
 
 
@@ -47,7 +49,7 @@ def startServer():
     global clientNumChange
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverIp = "10.17.0.126"
+    serverIp = "10.17.21.170"
     print(serverIp)
     port = 443
     server.bind((serverIp, port))
@@ -63,11 +65,11 @@ def startServer():
 
         if clientNumChange == True:
             currentUserText.configure(state= "normal")
-            currentUserText.delete("1.0", tk.END)
+            currentUserText.delete("1.0",customtkinter.END)
             for i in range(len(clients)):
-                currentUserText.insert(tk.END, "\n" + str(clients[i].id))
+                currentUserText.insert(customtkinter.END, "\n" + str(clients[i].id))
             for j in range(len(rooms)):
-                currentUserText.insert(tk.END, "\n" + str(rooms[j][0]))
+                currentUserText.insert(customtkinter.END, "\n" + str(rooms[j][0]))
             currentUserText.configure(state= "disabled")
             clientNumChange = False
 
@@ -82,22 +84,23 @@ def clientTethering():
     global clientNum
     global nextClient
     global clientNumChange
+    global totalClientsConnected
 
     try:
         while serverRunning:
-            print(clientNum)
             clientNum = clientNum + 1
-            nextClient = "client" + str(clientNum + 1)
+            totalClientsConnected = totalClientsConnected + 1
+            nextClient = "client" + str(totalClientsConnected + 1)
             clientSocket, addr = server.accept()
 
             clients.append(exec("%s = None" % (nextClient)))
             for i in range(len(clients)):
                 if clients[i] == None:
-                    clients[i] = Client("Undef", clientNum, clientSocket, addr,)
+                    clients[i] = Client("Undef", totalClientsConnected, clientSocket, addr,)
             clientNumChange = True
 
 
-            thread = threading.Thread(target= clients[clientNum - 1].handleClient)
+            thread = threading.Thread(target= clients[totalClientsConnected - 1].handleClient)
             thread.start()
     except Exception as e:
         pass
@@ -115,9 +118,10 @@ def sendConsoleMess(client, msg):
 
 #Gets the message from the server(console) text entry (messageEntry) and sends it to every client using the sendConsoleMess method
 def consoleMess(event):
-    for i in range(len(clients)):
-        sendConsoleMess(clients[i].clientSocket, ("Console: "+ messageEntry.get()))
-    messageEntry.delete(0, tk.END)
+    if len(clients) > 0:
+        for i in range(len(clients)):
+            sendConsoleMess(clients[i].clientSocket, ("Console: "+ messageEntry.get()))
+        messageEntry.delete(0, customtkinter.END)
 
 
 class Client():
@@ -167,6 +171,7 @@ class Client():
         requestThread.start()
 
         while self.session == True:
+            global clientNum
             if len(rooms) > self.numRooms:
                 allRooms = ""
                 if len(rooms) > 0:
@@ -262,7 +267,7 @@ class Client():
                                 print(self.currentRoom + "- " + self.username + ": " + self.request)
                     else:
                         print(self.username + ": " + self.request)
-                        self.requestUpdate = False
+            self.requestUpdate = False
 
 
         print(self.username + " left the server.")
@@ -300,14 +305,12 @@ def close():
 
 win.protocol("WM_DELETE_WINDOW", close)
 
-print(len(clients))
-if len(clients) > 0:
-    print("here")
-    win.bind('<Return>', consoleMess)
+#print(len(clients))
+win.bind('<Return>', consoleMess)
 
 
-messageEntry.pack(padx = 5, pady= 5, anchor= "s")
-endButton.pack(padx = 5, pady= 5,anchor= "center")
-startButton.pack(padx = 5, pady= 5,anchor= "center")
-currentUserText.pack(padx = 5, pady= 5,anchor= "center")
+messageEntry.pack(padx = 5, pady= 5)
+endButton.pack(padx = 5, pady= 5)
+startButton.pack(padx = 5, pady= 5)
+currentUserText.pack(padx = 5, pady= 5)
 win.mainloop()
