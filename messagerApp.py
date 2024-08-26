@@ -125,6 +125,7 @@ class User:
 
 #Tkinter Part
 win = customtkinter.CTk()
+customtkinter.set_appearance_mode("light")
 win_size = [900, 400]
 win.geometry((str(win_size[0]) + "x" + str(win_size[1])))
 win.title("Messaging")
